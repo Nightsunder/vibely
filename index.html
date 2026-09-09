@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Vibely – muziekquiz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="description" content="Vibely – jouw wereld, jouw vibes. Muziekquiz over Junior Eurosong en Junior Songfestival.">
+<meta name="theme-color" content="#05050a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vibely">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<style>
+  :root{
+    --bg:#05050a; --bg2:#0e0a19; --card:rgba(255,255,255,.055); --card2:rgba(255,255,255,.09);
+    --line:rgba(255,255,255,.12); --text:#f4f1fa; --muted:#a9a3bd; --dim:#6f6a84;
+    --cyan:#01edf6; --blue:#65b0fd; --violet:#9b83fc; --purple:#c35ffc; --magenta:#fb41fb; --orange:#fc9531;
+    --ok:#2ee6a6; --bad:#ff4d6d;
+    --grad:linear-gradient(90deg,#01edf6 0%,#65b0fd 22%,#9b83fc 42%,#c35ffc 60%,#fb41fb 78%,#fc9531 100%);
+    --grad-v:linear-gradient(160deg,#01edf6 0%,#65b0fd 25%,#c35ffc 55%,#fb41fb 78%,#fc9531 100%);
+    --r:22px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{
+    background:
+      radial-gradient(900px 520px at 50% -12%, rgba(109,70,246,.30), transparent 62%),
+      radial-gradient(700px 420px at 105% 105%, rgba(252,149,49,.13), transparent 60%),
+      radial-gradient(600px 400px at -10% 90%, rgba(1,237,246,.10), transparent 60%),
+      var(--bg);
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+    -webkit-user-select:none;user-select:none;
+    -webkit-touch-callout:none;
+  }
+  input,textarea{-webkit-user-select:text;user-select:text}
+  button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer}
+  a{color:var(--blue)}
+  .scherm{max-width:540px;margin:0 auto;padding:14px 16px 48px}
+  [hidden]{display:none!important}
+
+  /* ---------- algemene knoppen ---------- */
+  .knop{
+    display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    border:1px solid var(--line);border-radius:16px;background:var(--card);
+    padding:14px 16px;font-size:17px;font-weight:600;line-height:1.2;color:var(--text);
+    transition:transform .08s ease,background .15s ease,opacity .15s;
+  }
+  .knop:active{transform:scale(.975);background:var(--card2)}
+  .knop:disabled{opacity:.45;pointer-events:none}
+  .knop.primair{
+    background:var(--grad);color:#0b0614;border-color:transparent;
+    box-shadow:0 8px 30px rgba(195,95,252,.35),0 0 0 1px rgba(255,255,255,.06) inset;
+  }
+  .knop.klein{padding:10px 12px;font-size:15px;border-radius:13px}
+  .knop.mini{padding:7px 12px;font-size:14px;border-radius:11px;width:auto}
+  .knop.gevaar{color:var(--bad)}
+  .knop.ghost{background:transparent}
+  .knop svg{width:20px;height:20px;flex:none}
+  .rij{display:flex;gap:10px}
+  .rij > *{flex:1}
+
+  /* ---------- kaarten ---------- */
+  .kaart{
+    background:linear-gradient(var(--bg2),var(--bg2)) padding-box, var(--grad) border-box;
+    border:1.5px solid transparent;border-radius:var(--r);padding:16px;margin-top:14px;
+    box-shadow:0 10px 40px rgba(0,0,0,.45),0 0 28px rgba(155,131,252,.12);
+  }
+  .kaart.stil{background:var(--bg2);border:1px solid var(--line);box-shadow:none}
+  .titel{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 0 8px}
+  h2{font-size:20px;margin:0 0 6px;font-weight:700}
+  p{margin:0}
+  .muted{color:var(--muted)} .dim{color:var(--dim)} .klein-tekst{font-size:14px}
+  .gradtekst{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* ---------- topbalk ---------- */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0 2px;min-height:44px}
+  .top .midden{font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+  .merk{display:inline-flex;align-items:center;gap:2px;font-weight:800;letter-spacing:.28em;font-size:15px}
+  .merk svg{width:13px;height:15px;margin:0 2px 0 3px}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600}
+  .pill.score{background:var(--grad);color:#0b0614;border-color:transparent}
+
+  /* ---------- home ---------- */
+  .home-logo{display:block;width:min(74vw,290px);margin:6px auto 4px;border-radius:26px}
+  .home-sub{text-align:center;color:var(--muted);font-size:14px;margin:2px 0 14px}
+  .status{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 14px;color:var(--muted);font-size:14px;min-height:20px}
+  .status .bol{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+  .status .bol.ok{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+  .status .bol.bezig{background:var(--orange);animation:pulse 1s infinite}
+  .status .bol.slecht{background:var(--bad)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .home .knop{margin-top:10px}
+  .laatste{text-align:center;margin-top:16px;font-size:14px;color:var(--muted)}
+
+  /* ---------- speler ---------- */
+  .speler{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+  .play{
+    width:78px;height:78px;border-radius:50%;border:0;padding:0;background:var(--grad);position:relative;flex:none;
+    box-shadow:0 0 26px rgba(1,237,246,.28),0 0 40px rgba(251,65,251,.18);
+  }
+  .play::before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--bg2)}
+  .play svg{position:relative;width:34px;height:34px;fill:#fff}
+  .play.actief{animation:glow 1.2s ease-in-out infinite}
+  @keyframes glow{0%,100%{box-shadow:0 0 22px rgba(1,237,246,.3),0 0 40px rgba(251,65,251,.18)}50%{box-shadow:0 0 34px rgba(1,237,246,.55),0 0 60px rgba(251,65,251,.35)}}
+  .speler-info{min-width:0}
+  .speler-status{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;min-height:22px}
+  .eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px}
+  .eq i{display:block;width:3px;background:var(--grad-v);border-radius:2px;animation:eq .8s ease-in-out infinite;height:40%}
+  .eq i:nth-child(2){animation-delay:.15s}.eq i:nth-child(3){animation-delay:.3s}.eq i:nth-child(4){animation-delay:.45s}
+  @keyframes eq{0%,100%{height:30%}50%{height:100%}}
+  .balk{height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}
+  .balk > i{display:block;height:100%;width:0%;background:var(--grad);border-radius:6px;transition:width .12s linear}
+  .speler-tijd{font-size:13px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+  .fragmenten{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .fragmenten .knop{padding:11px 6px;font-size:14px;flex-direction:column;gap:3px;border-radius:14px}
+  .fragmenten .knop small{font-weight:500;color:var(--muted);font-size:12px}
+
+  /* ---------- vraag ---------- */
+  .vraag-kop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .soort{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+  .soort i{width:9px;height:9px;border-radius:50%;background:var(--kleur,var(--cyan));box-shadow:0 0 10px var(--kleur,var(--cyan))}
+  .soort.jaar{--kleur:var(--cyan)} .soort.artiest{--kleur:var(--magenta)} .soort.titel{--kleur:var(--orange)} .soort.lid{--kleur:var(--blue)}
+  .vraag-tekst{font-size:21px;font-weight:700;line-height:1.25;margin:2px 0 12px}
+  .tip-knop{width:auto;padding:7px 12px;font-size:13px;border-radius:999px;gap:6px;background:rgba(252,149,49,.12);border-color:rgba(252,149,49,.4);color:var(--orange)}
+  .tip-knop:disabled{opacity:.5}
+  .tip-tekst{background:rgba(252,149,49,.10);border:1px solid rgba(252,149,49,.35);border-radius:12px;padding:10px 12px;font-size:15px;margin:0 0 12px;color:#ffd7ab}
+  .opties{display:flex;flex-direction:column;gap:9px}
+  .optie{
+    display:flex;align-items:center;gap:12px;text-align:left;width:100%;border:1px solid var(--line);border-radius:14px;
+    background:var(--card);padding:13px 14px;font-size:17px;font-weight:600;line-height:1.25;
+  }
+  .optie:active{background:var(--card2)}
+  .optie b{flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:13px;background:rgba(255,255,255,.08);color:var(--muted)}
+  .optie.juist{border-color:var(--ok);background:rgba(46,230,166,.15)} .optie.juist b{background:var(--ok);color:#03130c}
+  .optie.fout{border-color:var(--bad);background:rgba(255,77,109,.14)} .optie.fout b{background:var(--bad);color:#fff}
+  .optie:disabled{opacity:.9}
+  .optie.weg{opacity:.28;text-decoration:line-through}
+  .jaren{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+  .jaarknop{border:1px solid var(--line);border-radius:11px;background:var(--card);padding:11px 0;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+  .jaarknop:active{background:var(--card2)}
+  .jaarknop.uit{opacity:.22}
+  .jaarknop.juist{border-color:var(--ok);background:rgba(46,230,166,.2)}
+  .jaarknop.fout{border-color:var(--bad);background:rgba(255,77,109,.2)}
+  .jaarknop.marge{border-color:rgba(46,230,166,.5)}
+  .typen{display:flex;gap:8px}
+  .typen input{
+    flex:1;min-width:0;font:inherit;font-size:17px;padding:13px 14px;border-radius:14px;border:1px solid var(--line);
+    background:rgba(0,0,0,.35);color:var(--text);outline:none;
+  }
+  .typen input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(155,131,252,.25)}
+  .typen .knop{width:auto;padding:0 18px;flex:none}
+  .geen-idee{margin-top:10px}
+
+  /* ---------- resultaat ---------- */
+  .resultaat{margin-top:14px}
+  .uitslag{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;margin-bottom:8px}
+  .uitslag.ok{color:var(--ok)} .uitslag.fout{color:var(--bad)}
+  .uitslag svg{width:24px;height:24px}
+  .nummer-info{font-size:16px;line-height:1.45}
+  .nummer-info strong{font-size:18px}
+  .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .links a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:14px;font-weight:600}
+  .links a svg{width:16px;height:16px}
+
+  /* ---------- scorebord ---------- */
+  .scores{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .score-rij{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px}
+  .score-rij .rang{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:13px;background:rgba(255,255,255,.08);color:var(--muted)}
+  .score-rij.top1 .rang{background:var(--grad);color:#0b0614}
+  .score-rij .naam{font-weight:700}
+  .score-rij .meta{font-size:13px;color:var(--muted)}
+  .score-rij .punten{font-weight:800;font-size:18px;text-align:right}
+  .score-rij .punten small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+  .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px}
+  .seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:9px 8px;font-size:14px;font-weight:600;color:var(--muted)}
+  .seg button.aan{background:var(--card2);color:var(--text)}
+  .leeg{text-align:center;color:var(--muted);padding:26px 10px}
+
+  /* ---------- instellingen ---------- */
+  .instelling{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .instelling:last-child{border-bottom:0}
+  .instelling .label{font-weight:600;font-size:16px}
+  .instelling .uitleg{font-size:13px;color:var(--muted);margin-top:2px}
+  .stepper{display:flex;align-items:center;gap:0;flex:none;background:var(--card);border:1px solid var(--line);border-radius:12px}
+  .stepper button{width:40px;height:40px;border:0;background:transparent;font-size:22px;font-weight:600;color:var(--text)}
+  .stepper span{min-width:34px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+  .schakel{position:relative;width:52px;height:32px;border-radius:999px;background:rgba(255,255,255,.14);border:0;flex:none;transition:background .2s}
+  .schakel::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .2s}
+  .schakel.aan{background:var(--grad)} .schakel.aan::after{transform:translateX(20px)}
+  .ontbreekt{max-height:220px;overflow:auto;font-size:13px;color:var(--muted);margin-top:8px;padding:8px 10px;background:rgba(0,0,0,.3);border-radius:10px;line-height:1.5;-webkit-user-select:text;user-select:text}
+
+  /* ---------- modal / toast ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:12px}
+  .modal{width:100%;max-width:520px;background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:env(safe-area-inset-bottom)}
+  .modal h3{margin:0 0 6px;font-size:20px}
+  .modal .rij{margin-top:14px}
+  .modal input{width:100%;font:inherit;font-size:17px;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--text);outline:none;margin-top:12px}
+  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1b1530;border:1px solid var(--line);color:var(--text);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:90vw;text-align:center;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.zichtbaar{opacity:1}
+  .fout-melding{margin:24px 0;padding:16px;border:1px solid var(--bad);border-radius:16px;color:#ffb3c1;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<section id="scherm-home" class="scherm home">
+  <img class="home-logo" src="logo.png" alt="Vibely – Your world, your vibes.">
+  <p class="home-sub">Junior Eurosong &amp; Junior Songfestival · 2003–2026</p>
+  <div class="status" id="home-status"><span class="bol"></span><span id="home-status-tekst">Nummers controleren…</span></div>
+  <button class="knop primair" id="knop-start">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"/></svg>
+    Start quiz
+  </button>
+  <div class="rij">
+    <button class="knop" id="knop-scorebord">Scorebord</button>
+    <button class="knop" id="knop-instellingen">Instellingen</button>
+  </div>
+  <p class="laatste" id="home-laatste"></p>
+  <div id="home-fout" class="fout-melding" hidden></div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="scherm-quiz" class="scherm" hidden>
+  <div class="top">
+    <button class="knop mini gevaar" id="knop-stop">Stop</button>
+    <span class="midden" id="quiz-teller">Vraag 1</span>
+    <span class="pill score" id="quiz-score">0 pt</span>
+  </div>
+
+  <div class="kaart">
+    <div class="speler">
+      <button class="play" id="knop-play" aria-label="Afspelen">
+        <svg viewBox="0 0 24 24" id="play-icoon"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"/></svg>
+      </button>
+      <div class="speler-info">
+        <div class="speler-status" id="speler-status">Klaar om af te spelen</div>
+        <div class="balk"><i id="speler-balk"></i></div>
+        <div class="speler-tijd" id="speler-tijd">Eerste 3 s van het nummer</div>
+      </div>
+    </div>
+    <div class="fragmenten">
+      <button class="knop" id="knop-verder"><span>Nog <span id="lbl-verder">3</span> s</span><small>verder</small></button>
+      <button class="knop" id="knop-willekeurig"><span>Willekeurig</span><small><span id="lbl-random">3</span> s</small></button>
+      <button class="knop" id="knop-volledig"><span>Volledig</span><small>hele nummer</small></button>
+    </div>
+  </div>
+
+  <div class="kaart stil" id="vraag-kaart">
+    <div class="vraag-kop">
+      <span class="soort" id="vraag-soort"><i></i><span id="vraag-soort-tekst">Jaartal</span></span>
+      <button class="knop tip-knop" id="knop-tip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>
+        <span id="knop-tip-tekst">Tip · kost 1 punt</span>
+      </button>
+    </div>
+    <div class="vraag-tekst" id="vraag-tekst"></div>
+    <div class="tip-tekst" id="tip-tekst" hidden></div>
+    <div id="antwoord-zone"></div>
+    <button class="knop klein ghost geen-idee" id="knop-geen-idee">Geen idee – toon het antwoord</button>
+  </div>
+
+  <div class="kaart resultaat" id="resultaat" hidden>
+    <div class="uitslag" id="uitslag"></div>
+    <div class="nummer-info" id="nummer-info"></div>
+    <div class="links" id="nummer-links"></div>
+    <button class="knop primair" id="knop-volgende" style="margin-top:16px">
+      Volgende vraag
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ============ SCOREBORD ============ -->
+<section id="scherm-scores" class="scherm" hidden>
+  <div class="top">
+    <button class="knop mini" id="knop-scores-terug">‹ Terug</button>
+    <span class="merk">VIB<svg viewBox="0 0 13 15"><defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#01edf6"/><stop offset=".5" stop-color="#c35ffc"/><stop offset="1" stop-color="#fc9531"/></linearGradient></defs><rect x="0" y="0" width="13" height="3.2" rx="1.6" fill="url(#g1)"/><rect x="0" y="5.9" width="13" height="3.2" rx="1.6" fill="url(#g1)"/><rect x="0" y="11.8" width="13" height="3.2" rx="1.6" fill="url(#g1)"/></svg>LY</span>
+    <span style="width:64px"></span>
+  </div>
+  <div class="kaart">
+    <p class="titel">Scorebord</p>
+    <div class="seg" id="scores-sorteer">
+      <button data-sort="score" class="aan">Beste eerst</button>
+      <button data-sort="datum">Recentste eerst</button>
+    </div>
+    <div class="scores" id="scores-lijst"></div>
+  </div>
+  <button class="knop klein ghost gevaar" id="knop-scores-wissen" style="margin-top:14px">Scorebord wissen</button>
+</section>
+
+<!-- ============ INSTELLINGEN ============ -->
+<section id="scherm-instellingen" class="scherm" hidden>
+  <div class="top">
+    <button class="knop mini" id="knop-instellingen-terug">‹ Terug</button>
+    <span class="midden">Instellingen</span>
+    <span style="width:64px"></span>
+  </div>
+
+  <div class="kaart">
+    <p class="titel">Fragmenten</p>
+    <div class="instelling"><div><div class="label">Eerste fragment</div><div class="uitleg">seconden vanaf het begin</div></div>
+      <div class="stepper" data-key="secStart" data-min="1" data-max="60"><button data-d="-1">−</button><span>3</span><button data-d="1">+</button></div></div>
+    <div class="instelling"><div><div class="label">Extra fragment</div><div class="uitleg">seconden bij “Nog … s”</div></div>
+      <div class="stepper" data-key="secVerder" data-min="1" data-max="60"><button data-d="-1">−</button><span>3</span><button data-d="1">+</button></div></div>
+    <div class="instelling"><div><div class="label">Willekeurig fragment</div><div class="uitleg">seconden op een willekeurige plek</div></div>
+      <div class="stepper" data-key="secRandom" data-min="1" data-max="60"><button data-d="-1">−</button><span>3</span><button data-d="1">+</button></div></div>
+    <div class="instelling"><div><div class="label">Automatisch afspelen</div><div class="uitleg">eerste fragment start bij elke nieuwe vraag</div></div>
+      <button class="schakel" data-toggle="autoplay" aria-label="Automatisch afspelen"></button></div>
+  </div>
+
+  <div class="kaart">
+    <p class="titel">Vragen</p>
+    <div class="instelling"><div><div class="label">Antwoordmodus</div><div class="uitleg">meerkeuze of zelf typen (jaartal kies je altijd uit een raster)</div></div></div>
+    <div class="seg" id="modus-seg" style="margin-bottom:6px">
+      <button data-modus="meerkeuze">Meerkeuze</button>
+      <button data-modus="typen">Typen</button>
+    </div>
+    <div class="instelling"><div><div class="label">Marge op het jaartal</div><div class="uitleg">± jaren die nog als juist tellen</div></div>
+      <div class="stepper" data-key="jaarMarge" data-min="0" data-max="10"><button data-d="-1">−</button><span>1</span><button data-d="1">+</button></div></div>
+    <div class="instelling"><div class="label">Vraag: jaartal</div><button class="schakel" data-type="jaar"></button></div>
+    <div class="instelling"><div class="label">Vraag: artiest</div><button class="schakel" data-type="artiest"></button></div>
+    <div class="instelling"><div class="label">Vraag: titel</div><button class="schakel" data-type="titel"></button></div>
+    <div class="instelling"><div><div class="label">Vraag: groepslid</div><div class="uitleg" id="uitleg-lid">alleen bij groepen en duo's</div></div><button class="schakel" data-type="lid"></button></div>
+  </div>
+
+  <div class="kaart">
+    <p class="titel">Landen</p>
+    <div class="instelling"><div class="label">België (Junior Eurosong)</div><button class="schakel" data-land="België"></button></div>
+    <div class="instelling"><div class="label">Nederland (Junior Songfestival)</div><button class="schakel" data-land="Nederland"></button></div>
+  </div>
+
+  <div class="kaart">
+    <p class="titel">Nummers</p>
+    <p id="inst-bestanden" class="klein-tekst muted" style="margin-bottom:10px">…</p>
+    <button class="knop klein" id="knop-controleer">Nummers opnieuw controleren</button>
+    <div class="ontbreekt" id="ontbreekt-lijst" hidden></div>
+  </div>
+
+  <div class="kaart stil">
+    <p class="titel">Over</p>
+    <p class="klein-tekst muted">Vibely · Your world, your vibes. Quiz over de Belgische en Nederlandse voorrondes van het Junior Eurovisiesongfestival (2003–2026). Zet de mp3-bestanden in de map <b>audio/</b> met exact de bestandsnaam uit songs.js.</p>
+    <button class="knop klein ghost" id="knop-reset" style="margin-top:12px">Instellingen terugzetten</button>
+  </div>
+</section>
+
+<!-- ============ MODALS / TOAST ============ -->
+<div class="overlay" id="stop-overlay" hidden>
+  <div class="modal">
+    <h3>Quiz stoppen?</h3>
+    <p class="muted" id="stop-samenvatting"></p>
+    <input type="text" id="stop-naam" placeholder="Naam (optioneel)" autocomplete="off" maxlength="30">
+    <div class="rij">
+      <button class="knop" id="knop-stop-verder">Verder spelen</button>
+      <button class="knop primair" id="knop-stop-opslaan">Score bewaren</button>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="bevestig-overlay" hidden>
+  <div class="modal">
+    <h3 id="bevestig-titel">Zeker?</h3>
+    <p class="muted" id="bevestig-tekst"></p>
+    <div class="rij">
+      <button class="knop" id="knop-bevestig-nee">Annuleren</button>
+      <button class="knop gevaar" id="knop-bevestig-ja">Ja, doen</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<audio id="audio" preload="auto" playsinline webkit-playsinline></audio>
+
+<script src="songs.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   Vibely – muziekquiz.  Alle tekst in het Nederlands.
+   Data komt uit songs.js (window.VIBELY_SONGS), mp3's uit audio/.
+   ============================================================ */
+
+const SONGS = Array.isArray(window.VIBELY_SONGS) ? window.VIBELY_SONGS : [];
+const LS = { instellingen:'vibely.instellingen.v1', scores:'vibely.scores.v1', bestanden:'vibely.bestanden.v1' };
+const STANDAARD = {
+  secStart:3, secVerder:3, secRandom:3, jaarMarge:1, modus:'meerkeuze', autoplay:true,
+  types:{ jaar:true, artiest:true, titel:true, lid:true },
+  landen:{ 'België':true, 'Nederland':true }
+};
+const SOORT_LABEL = { jaar:'Jaartal', artiest:'Artiest', titel:'Titel', lid:'Groepslid' };
+
+/* ---------- kleine helpers ---------- */
+const el = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+function laadJSON(key, fallback){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+function bewaarJSON(key, val){ try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+function fmtDatum(iso){
+  try { return new Date(iso).toLocaleString('nl-BE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+  catch (e) { return iso; }
+}
+function fmtTijd(sec){ if (!isFinite(sec) || sec < 0) sec = 0; sec = Math.round(sec); const m = Math.floor(sec / 60), s = sec % 60; return m + ':' + String(s).padStart(2, '0'); }
+let toastTimer = null;
+function toast(msg, ms){ const t = el('toast'); t.textContent = msg; t.classList.add('zichtbaar'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('zichtbaar'), ms || 2600); }
+
+/* ---------- tekst normaliseren & vergelijken (voor getypte antwoorden) ---------- */
+function norm(s){
+  return String(s ?? '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' en ').replace(/\band\b/g, ' en ')
+    .replace(/['’`´]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim().replace(/\s+/g, ' ');
+}
+function zonderLidwoord(s){ return s.replace(/^(the|de|het|een|a|les|le|la|los|las|el) /, ''); }
+function lev(a, b){
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length:n + 1 }, (_, i) => i), cur = new Array(n + 1);
+  for (let i = 1; i <= m; i++) {
+    cur[0] = i;
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    [prev, cur] = [cur, prev];
+  }
+  return prev[n];
+}
+function tolerantie(len){ return len <= 3 ? 0 : len <= 6 ? 1 : len <= 10 ? 2 : 3; }
+function fuzzyGelijk(a, b){
+  if (!a || !b) return false;
+  if (a === b) return true;
+  return lev(a, b) <= tolerantie(Math.max(a.length, b.length));
+}
+function varianten(t){
+  const set = new Set();
+  const basis = [t, String(t).replace(/\s*\([^)]*\)\s*/g, ' ')];
+  for (const b of basis) { const n = norm(b); if (n) { set.add(n); set.add(zonderLidwoord(n)); } }
+  return [...set].filter(Boolean);
+}
+function komtOvereen(invoer, doelen){
+  const a = norm(invoer); if (!a) return false;
+  const aa = [a, zonderLidwoord(a)];
+  return doelen.filter(Boolean).some(d => varianten(d).some(v => aa.some(x => fuzzyGelijk(x, v))));
+}
+
+/* ---------- instellingen ---------- */
+let S = laadInstellingen();
+function laadInstellingen(){
+  const opgeslagen = laadJSON(LS.instellingen, {}) || {};
+  const s = Object.assign({}, STANDAARD, opgeslagen);
+  s.types = Object.assign({}, STANDAARD.types, opgeslagen.types || {});
+  s.landen = Object.assign({}, STANDAARD.landen, opgeslagen.landen || {});
+  for (const k of ['secStart', 'secVerder', 'secRandom', 'jaarMarge']) { s[k] = Number(s[k]); if (!isFinite(s[k])) s[k] = STANDAARD[k]; }
+  if (s.modus !== 'typen') s.modus = 'meerkeuze';
+  return s;
+}
+function bewaarInstellingen(){ bewaarJSON(LS.instellingen, S); }
+
+/* ---------- toestand ---------- */
+const state = {
+  ronde:null,          // { score, vragen, juist, gespeeld:Set, tips }
+  q:null,              // huidige vraag
+  bestanden:{ map:{}, status:'idle', klaar:0, totaal:0, promise:null },
+  sorteer:'score'
+};
+const JAREN = SONGS.length ? { min:Math.min(...SONGS.map(s => s.jaar)), max:Math.max(...SONGS.map(s => s.jaar)) } : { min:2003, max:2026 };
+
+/* ---------- schermen ---------- */
+function toon(naam){
+  for (const s of ['home', 'quiz', 'scores', 'instellingen']) el('scherm-' + s).hidden = (s !== naam);
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   Beschikbaarheid van de mp3-bestanden
+   codes: 1 = gevonden (NFC-naam), 2 = gevonden (NFD-naam), 0 = ontbreekt, -1 = niet te controleren
+   ============================================================ */
+function bestandsUrl(song){
+  const code = state.bestanden.map[song.mp3];
+  const naam = code === 2 ? song.mp3.normalize('NFD') : song.mp3.normalize('NFC');
+  return 'audio/' + encodeURIComponent(naam);
+}
+async function testUrl(url){
+  try {
+    let r = await fetch(url, { method:'HEAD', cache:'no-cache' });
+    if (r.status === 405 || r.status === 501) r = await fetch(url, { method:'GET', headers:{ Range:'bytes=0-0' }, cache:'no-cache' });
+    return r.ok ? 1 : 0;
+  } catch (e) { return -1; }
+}
+async function controleerBestand(naam){
+  const nfc = naam.normalize('NFC'), nfd = naam.normalize('NFD');
+  const r1 = await testUrl('audio/' + encodeURIComponent(nfc));
+  if (r1 !== 0) return r1;
+  if (nfd !== nfc) { const r2 = await testUrl('audio/' + encodeURIComponent(nfd)); if (r2 === 1) return 2; }
+  return 0;
+}
+function controleerBestanden(forceer){
+  if (state.bestanden.promise && !forceer && state.bestanden.status !== 'klaar') return state.bestanden.promise;
+  const namen = SONGS.map(s => s.mp3);
+  const cache = laadJSON(LS.bestanden, null);
+  if (!forceer && cache && cache.t && (Date.now() - cache.t) < 24 * 3600 * 1000 && cache.map && namen.every(n => n in cache.map)) {
+    state.bestanden.map = cache.map; state.bestanden.status = cache.onbekend ? 'onbekend' : 'klaar';
+    state.bestanden.klaar = state.bestanden.totaal = namen.length;
+    toonBestandsStatus();
+    hercontroleerOntbrekend(cache);
+    return (state.bestanden.promise = Promise.resolve());
+  }
+  state.bestanden.status = 'bezig'; state.bestanden.klaar = 0; state.bestanden.totaal = namen.length;
+  toonBestandsStatus();
+  const map = state.bestanden.map = {}; const wachtrij = namen.slice();
+  const werker = async () => {
+    while (wachtrij.length) {
+      const naam = wachtrij.shift();
+      map[naam] = await controleerBestand(naam);
+      state.bestanden.klaar++;
+      if (state.bestanden.klaar % 10 === 0) toonBestandsStatus();
+    }
+  };
+  state.bestanden.promise = Promise.all(Array.from({ length:6 }, werker)).then(() => {
+    const onbekend = namen.length > 0 && namen.every(n => map[n] === -1);
+    if (onbekend) for (const n of namen) delete map[n];   // bv. geopend via file:// → later leren van afspeelfouten
+    state.bestanden.map = map; state.bestanden.status = onbekend ? 'onbekend' : 'klaar';
+    bewaarJSON(LS.bestanden, { t:Date.now(), map, onbekend });
+    toonBestandsStatus();
+  });
+  return state.bestanden.promise;
+}
+/* Nummers die bij de vorige controle ontbraken stil opnieuw proberen (nieuwe mp3's verschijnen zo vanzelf) */
+async function hercontroleerOntbrekend(cache){
+  const ontbrekend = SONGS.map(s => s.mp3).filter(n => state.bestanden.map[n] === 0);
+  if (!ontbrekend.length || state.bestanden.status === 'onbekend') return;
+  let gevonden = 0;
+  const werker = async () => {
+    while (ontbrekend.length) {
+      const naam = ontbrekend.shift();
+      const r = await controleerBestand(naam);
+      if (r === 1 || r === 2) { state.bestanden.map[naam] = r; cache.map[naam] = r; gevonden++; }
+    }
+  };
+  await Promise.all(Array.from({ length:4 }, werker));
+  if (gevonden) { bewaarJSON(LS.bestanden, cache); toonBestandsStatus(); toast(`${gevonden} nieuwe ${gevonden === 1 ? 'nummer' : 'nummers'} gevonden`); }
+}
+function markeerOntbrekend(song){
+  state.bestanden.map[song.mp3] = 0;
+  const cache = laadJSON(LS.bestanden, null) || { t:Date.now(), map:{} };
+  cache.map = cache.map || {}; cache.map[song.mp3] = 0; bewaarJSON(LS.bestanden, cache);
+  toonBestandsStatus();
+}
+function beschikbaar(song){ return state.bestanden.map[song.mp3] !== 0; }
+function aantalBeschikbaar(){ return SONGS.filter(beschikbaar).length; }
+function toonBestandsStatus(){
+  const b = state.bestanden, bol = el('home-status').querySelector('.bol'), tekst = el('home-status-tekst');
+  bol.className = 'bol';
+  if (!SONGS.length) { bol.classList.add('slecht'); tekst.textContent = 'songs.js niet gevonden of leeg'; }
+  else if (b.status === 'bezig') { bol.classList.add('bezig'); tekst.textContent = `Nummers controleren… ${b.klaar}/${b.totaal}`; }
+  else if (b.status === 'onbekend') { tekst.textContent = `${SONGS.length} nummers (bestanden niet vooraf te controleren)`; }
+  else if (b.status === 'klaar') { const n = aantalBeschikbaar(); bol.classList.add(n ? 'ok' : 'slecht'); tekst.textContent = `${n} van ${SONGS.length} nummers beschikbaar`; }
+  else tekst.textContent = `${SONGS.length} nummers`;
+  const inst = el('inst-bestanden');
+  if (inst) {
+    if (b.status === 'klaar') {
+      const ontbreekt = SONGS.filter(s => !beschikbaar(s));
+      inst.textContent = `${aantalBeschikbaar()} van ${SONGS.length} nummers gevonden in de map audio/. ` + (ontbreekt.length ? `${ontbreekt.length} ontbreken (lijst hieronder). De controle wordt 24 uur onthouden.` : 'Alles is compleet.');
+      const lijst = el('ontbreekt-lijst');
+      lijst.hidden = !ontbreekt.length;
+      lijst.innerHTML = ontbreekt.map(s => esc(s.mp3)).join('<br>');
+    } else if (b.status === 'bezig') inst.textContent = `Controleren… ${b.klaar}/${b.totaal}`;
+    else if (b.status === 'onbekend') inst.textContent = 'De bestanden konden niet vooraf gecontroleerd worden (werkt pas na publicatie op GitHub Pages of via een webserver). Ontbrekende nummers worden overgeslagen zodra ze niet afgespeeld kunnen worden.';
+    else inst.textContent = `${SONGS.length} nummers in songs.js.`;
+  }
+}
+
+/* ============================================================
+   Audio
+   ============================================================ */
+const audio = el('audio');
+const speler = { songId:null, clipStart:0, clipLen:null, lastEnd:0, timer:null, pending:null, bezig:false, foutGemeld:false };
+
+function laadNummer(song){
+  if (speler.songId === song.id) return;
+  stopTimer(); audio.pause();
+  speler.songId = song.id; speler.lastEnd = 0; speler.clipStart = 0; speler.clipLen = null; speler.pending = null; speler.foutGemeld = false;
+  audio.src = bestandsUrl(song);
+  audio.load();
+  zetBalk(0);
+}
+function stopTimer(){ if (speler.timer) { clearTimeout(speler.timer); speler.timer = null; } }
+function berekenStart(spec, len){
+  const dur = isFinite(audio.duration) ? audio.duration : 0;
+  if (spec === 'random') { const max = Math.max(0, dur - (len || 0) - 0.5); return Math.random() * max; }
+  if (spec === 'verder') return Math.max(0, Math.min(speler.lastEnd, dur ? dur - 0.5 : speler.lastEnd));
+  return spec || 0;
+}
+/* spec: 0 (begin), 'verder', 'random'.  len: seconden of null (= volledig) */
+function speel(spec, len){
+  if (!state.q) return;
+  laadNummer(state.q.song);
+  stopTimer();
+  speler.clipLen = len;
+  const metaBekend = audio.readyState >= 1;
+  if (metaBekend || spec === 0 || (spec === 'verder' && speler.lastEnd === 0)) {
+    speler.clipStart = berekenStart(spec, len); speler.pending = null;
+    try { if (Math.abs(audio.currentTime - speler.clipStart) > 0.25) audio.currentTime = speler.clipStart; } catch (e) {}
+  } else {
+    speler.clipStart = 0; speler.pending = spec;   // wordt bepaald zodra de duur bekend is (loadedmetadata)
+  }
+  zetStatus('Laden…', true);
+  const p = audio.play();
+  if (p && p.catch) p.catch(err => {
+    if (err && err.name === 'NotAllowedError') zetStatus('Tik op ▶ om af te spelen', false);
+    else if (!speler.foutGemeld) zetStatus('Kan niet afspelen', false);
+  });
+}
+function stopAfspelen(){
+  stopTimer();
+  if (!audio.paused) { audio.pause(); speler.lastEnd = audio.currentTime; }
+  speler.clipLen = null;
+  zetStatus('Gestopt', false);
+}
+function planStop(){
+  stopTimer();
+  if (speler.clipLen == null || speler.pending) return;
+  const eind = speler.clipStart + speler.clipLen;
+  const rest = (eind - audio.currentTime) * 1000;
+  if (rest <= 0) { eindeFragment(); return; }
+  speler.timer = setTimeout(eindeFragment, rest + 15);
+}
+function eindeFragment(){
+  stopTimer();
+  audio.pause();
+  const eind = speler.clipStart + (speler.clipLen || 0);
+  speler.lastEnd = Math.min(eind, isFinite(audio.duration) ? audio.duration : eind);
+  speler.clipLen = null;
+  zetBalk(1);
+  zetStatus('Fragment klaar', false);
+}
+function zetStatus(tekst, actief){
+  speler.bezig = !!actief;
+  el('speler-status').innerHTML = (actief ? '<span class="eq"><i></i><i></i><i></i><i></i></span>' : '') + esc(tekst);
+  el('knop-play').classList.toggle('actief', !!actief);
+  el('play-icoon').innerHTML = actief
+    ? '<path d="M7 6h4v12H7zM13 6h4v12h-4z"/>'
+    : '<path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"/>';
+}
+function zetBalk(fractie){ el('speler-balk').style.width = (Math.max(0, Math.min(1, fractie)) * 100).toFixed(1) + '%'; }
+function toonTijd(){
+  const dur = isFinite(audio.duration) ? audio.duration : 0;
+  const pos = audio.currentTime || 0;
+  let t;
+  if (speler.clipLen != null && !audio.paused) t = `Fragment ${fmtTijd(pos)} van ${fmtTijd(dur)}`;
+  else if (!audio.paused) t = `Volledig nummer ${fmtTijd(pos)} / ${fmtTijd(dur)}`;
+  else if (dur) t = `Positie ${fmtTijd(pos)} / ${fmtTijd(dur)} · verder vanaf ${fmtTijd(speler.lastEnd)}`;
+  else t = `Eerste ${S.secStart} s van het nummer`;
+  el('speler-tijd').textContent = t;
+}
+
+audio.addEventListener('loadedmetadata', () => {
+  if (speler.pending) {
+    speler.clipStart = berekenStart(speler.pending, speler.clipLen); speler.pending = null;
+    try { audio.currentTime = speler.clipStart; } catch (e) {}
+  }
+  toonTijd();
+});
+audio.addEventListener('playing', () => {
+  if (speler.clipLen != null) zetStatus(`Speelt fragment (${speler.clipLen} s)`, true);
+  else zetStatus('Speelt volledig nummer', true);
+  planStop();
+});
+audio.addEventListener('seeked', planStop);
+audio.addEventListener('pause', () => { stopTimer(); if (speler.bezig) zetStatus(audio.ended ? 'Nummer afgelopen' : 'Gepauzeerd', false); toonTijd(); });
+audio.addEventListener('ended', () => { stopTimer(); speler.lastEnd = 0; speler.clipLen = null; zetBalk(1); zetStatus('Nummer afgelopen', false); });
+audio.addEventListener('timeupdate', () => {
+  if (speler.clipLen != null && !speler.pending) {
+    const eind = speler.clipStart + speler.clipLen;
+    if (audio.currentTime >= eind - 0.02) { eindeFragment(); return; }
+    zetBalk((audio.currentTime - speler.clipStart) / speler.clipLen);
+  } else if (isFinite(audio.duration) && audio.duration > 0) zetBalk(audio.currentTime / audio.duration);
+  toonTijd();
+});
+audio.addEventListener('waiting', () => { if (speler.bezig) zetStatus('Laden…', true); });
+audio.addEventListener('error', () => {
+  const q = state.q; if (!q || speler.songId !== q.song.id || speler.foutGemeld) return;
+  speler.foutGemeld = true;
+  stopTimer();
+  zetStatus('Bestand niet gevonden', false);
+  if (!q.beantwoord) {
+    markeerOntbrekend(q.song);
+    toast('Mp3 ontbreekt: ' + q.song.mp3, 3500);
+    const nieuw = maakVraag(q.type);
+    if (nieuw) { state.q = nieuw; speler.songId = null; renderVraag(); zetStatus('Tik op ▶ om af te spelen', false); }
+  }
+});
+
+/* ============================================================
+   Vragen
+   ============================================================ */
+function pool(){
+  const alles = SONGS.filter(s => S.landen[s.land] !== false && beschikbaar(s));
+  if (state.bestanden.status !== 'bezig') return alles;
+  // tijdens de controle: liefst alleen nummers die al bevestigd zijn
+  const bevestigd = alles.filter(s => state.bestanden.map[s.mp3] === 1 || state.bestanden.map[s.mp3] === 2);
+  return bevestigd.length >= 5 ? bevestigd : alles;
+}
+function metLeden(s){ return Array.isArray(s.leden) && s.leden.length > 0; }
+
+function maakVraag(gewenstType){
+  let kandidaten = pool();
+  if (!kandidaten.length) return null;
+  const gespeeld = state.ronde ? state.ronde.gespeeld : new Set();
+  let vers = kandidaten.filter(s => !gespeeld.has(s.id));
+  if (!vers.length) { gespeeld.clear(); vers = kandidaten; }
+  let types = Object.keys(S.types).filter(t => S.types[t]);
+  if (!types.length) types = ['artiest'];
+  if (types.includes('lid') && !vers.some(metLeden)) types = types.filter(t => t !== 'lid');
+  if (!types.length) types = ['artiest'];
+  let type = (gewenstType && types.includes(gewenstType)) ? gewenstType : pick(types);
+  if (type === 'lid' && !vers.some(metLeden)) type = pick(types.filter(t => t !== 'lid')) || 'artiest';
+  const song = pick(type === 'lid' ? vers.filter(metLeden) : vers);
+  const q = { song, type, modus:S.modus, opties:null, juistOptie:null, beantwoord:false, tip:false, tipTekst:'', venster:null, gekozen:null, juist:null, punten:0 };
+
+  if (type === 'jaar') {
+    // niets: jaarraster
+  } else if (S.modus === 'meerkeuze') {
+    if (type === 'artiest') { q.juistOptie = song.artiest; q.opties = maakOpties(song.artiest, SONGS.filter(o => o.id !== song.id), o => o.artiest, song); }
+    else if (type === 'titel') { q.juistOptie = song.titel; q.opties = maakOpties(song.titel, SONGS.filter(o => o.id !== song.id), o => o.titel, song); }
+    else if (type === 'lid') {
+      const lid = pick(song.leden);
+      q.juistOptie = lid[0];
+      const eigen = new Set(song.leden.flatMap(l => [norm(l[0]), norm(l[1])]).filter(Boolean));
+      const anderen = [];
+      for (const o of SONGS) if (o.id !== song.id && metLeden(o)) for (const l of o.leden) anderen.push({ land:o.land, jaar:o.jaar, naam:l[0] });
+      q.opties = maakOpties(lid[0], anderen.filter(a => !eigen.has(norm(a.naam))), a => a.naam, song);
+    }
+  }
+  return q;
+}
+/* 3 afleiders, liefst uit hetzelfde land, unieke (genormaliseerde) namen */
+function maakOpties(juist, kandidaten, waarde, song){
+  const gezien = new Set([norm(juist)]);
+  const uniek = [];
+  for (const k of shuffle(kandidaten.slice())) { const w = waarde(k); const n = norm(w); if (!n || gezien.has(n)) continue; gezien.add(n); uniek.push({ w, land:k.land }); }
+  const zelfde = uniek.filter(u => u.land === song.land), andere = uniek.filter(u => u.land !== song.land);
+  const afleiders = zelfde.slice(0, 3);
+  for (const a of andere) { if (afleiders.length >= 3) break; afleiders.push(a); }
+  return shuffle([juist, ...afleiders.map(a => a.w)]);
+}
+function vraagTekst(q){
+  const duo = q.song.soort === 'duo';
+  switch (q.type) {
+    case 'jaar': return 'Uit welk jaar komt dit nummer?';
+    case 'artiest': return 'Wie is de artiest van dit nummer?';
+    case 'titel': return 'Wat is de titel van dit nummer?';
+    case 'lid': return q.opties ? (duo ? 'Wie vormt dit duo mee?' : 'Wie is lid van deze groep?') : (duo ? 'Noem één van de twee artiesten van dit duo.' : 'Noem één lid van deze groep.');
+  }
+  return '';
+}
+function doelen(q){
+  const s = q.song;
+  if (q.type === 'artiest') return [s.artiest, s.naam];
+  if (q.type === 'titel') return [s.titel];
+  if (q.type === 'lid') return s.leden.flatMap(l => [l[0], l[1]]);
+  return [];
+}
+function naamVerraadtLeden(song){ const a = norm(song.artiest); return song.leden.some(l => l[0] && a.includes(norm(l[0]))); }
+
+/* ---------- ronde ---------- */
+function startQuiz(){
+  if (!SONGS.length) { toast('Geen nummers gevonden in songs.js'); return; }
+  if (!pool().length) { toast('Geen beschikbare nummers. Zet mp3-bestanden in de map audio/ of pas de landen aan.', 4000); return; }
+  state.ronde = { score:0, vragen:0, juist:0, gespeeld:new Set(), tips:0 };
+  toon('quiz');
+  volgendeVraag(true);
+}
+function volgendeVraag(eerste){
+  const q = maakVraag();
+  if (!q) { toast('Geen nummers beschikbaar'); toon('home'); return; }
+  state.q = q;
+  state.ronde.gespeeld.add(q.song.id);
+  renderVraag();
+  speler.songId = null;
+  if (S.autoplay) speel(0, S.secStart);
+  else { laadNummer(q.song); zetStatus('Klaar om af te spelen', false); }
+}
+function renderVraag(){
+  const q = state.q, r = state.ronde;
+  el('quiz-teller').textContent = 'Vraag ' + (r.vragen + 1);
+  el('quiz-score').textContent = r.score + ' pt';
+  el('lbl-verder').textContent = S.secVerder; el('lbl-random').textContent = S.secRandom;
+  el('vraag-soort').className = 'soort ' + q.type;
+  el('vraag-soort-tekst').textContent = SOORT_LABEL[q.type];
+  el('vraag-tekst').textContent = vraagTekst(q);
+  el('tip-tekst').hidden = !q.tip; el('tip-tekst').textContent = q.tipTekst;
+  el('knop-tip').disabled = q.tip || q.beantwoord;
+  el('knop-tip-tekst').textContent = q.tip ? 'Tip gebruikt · nog 1 punt' : 'Tip · kost 1 punt';
+  el('knop-geen-idee').hidden = q.beantwoord;
+  el('resultaat').hidden = true;
+  zetBalk(0);
+  toonTijd();
+  const zone = el('antwoord-zone');
+  if (q.type === 'jaar') {
+    let html = '<div class="jaren">';
+    for (let j = JAREN.min; j <= JAREN.max; j++) {
+      const uit = q.venster && (j < q.venster[0] || j > q.venster[1]);
+      html += `<button class="jaarknop${uit ? ' uit' : ''}" data-jaar="${j}"${uit ? ' disabled' : ''}>${j}</button>`;
+    }
+    zone.innerHTML = html + '</div>';
+  } else if (q.opties) {
+    const letters = 'ABCD';
+    zone.innerHTML = '<div class="opties">' + q.opties.map((o, i) => `<button class="optie" data-optie="${esc(o)}"><b>${letters[i]}</b><span>${esc(o)}</span></button>`).join('') + '</div>';
+    if (q.tip && q.weg) for (const b of zone.querySelectorAll('.optie')) if (q.weg.includes(b.dataset.optie)) { b.classList.add('weg'); b.disabled = true; }
+  } else {
+    zone.innerHTML = `<form class="typen" id="typen-form"><input type="text" id="typen-invoer" placeholder="Typ je antwoord…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done"><button class="knop" type="submit">OK</button></form>`;
+  }
+}
+function beantwoord(antwoord){
+  const q = state.q; if (!q || q.beantwoord) return;
+  let juist;
+  if (q.type === 'jaar') juist = Math.abs(Number(antwoord) - q.song.jaar) <= S.jaarMarge;
+  else if (q.opties) juist = norm(antwoord) === norm(q.juistOptie);
+  else juist = komtOvereen(antwoord, doelen(q));
+  q.beantwoord = true; q.gekozen = antwoord; q.juist = juist; q.punten = juist ? (q.tip ? 1 : 2) : 0;
+  state.ronde.vragen++; state.ronde.score += q.punten; if (juist) state.ronde.juist++;
+  renderResultaat();
+}
+function renderResultaat(){
+  const q = state.q, s = q.song, r = state.ronde;
+  el('quiz-score').textContent = r.score + ' pt';
+  el('knop-tip').disabled = true; el('knop-geen-idee').hidden = true;
+  const zone = el('antwoord-zone');
+  if (q.type === 'jaar') {
+    for (const b of zone.querySelectorAll('.jaarknop')) {
+      const j = Number(b.dataset.jaar); b.disabled = true;
+      if (j === s.jaar) b.classList.add('juist');
+      else if (Math.abs(j - s.jaar) <= S.jaarMarge) b.classList.add('marge');
+      if (j === Number(q.gekozen) && j !== s.jaar) b.classList.add(q.juist ? 'juist' : 'fout');
+    }
+  } else if (q.opties) {
+    for (const b of zone.querySelectorAll('.optie')) {
+      b.disabled = true;
+      if (norm(b.dataset.optie) === norm(q.juistOptie)) b.classList.add('juist');
+      else if (norm(b.dataset.optie) === norm(q.gekozen)) b.classList.add('fout');
+    }
+  } else {
+    const inp = el('typen-invoer'); if (inp) { inp.disabled = true; inp.style.borderColor = q.juist ? 'var(--ok)' : 'var(--bad)'; }
+    const knop = zone.querySelector('button'); if (knop) knop.disabled = true;
+  }
+  const u = el('uitslag');
+  u.className = 'uitslag ' + (q.juist ? 'ok' : 'fout');
+  u.innerHTML = q.juist
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg> Juist! +${q.punten} ${q.punten === 1 ? 'punt' : 'punten'}`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg> ${q.gekozen === '' || q.gekozen == null ? 'Geen antwoord' : 'Helaas, fout'} · 0 punten`;
+  let info = `<strong>${esc(s.artiest)}</strong> – ${esc(s.titel)}<br><span class="muted">${esc(s.land)} · ${s.jaar}${s.naam ? ' · ' + esc(s.naam) : ''}</span>`;
+  if (metLeden(s)) info += `<br><span class="muted">${s.soort === 'duo' ? 'Duo' : 'Leden'}: ${esc(s.leden.map(l => l[1] || l[0]).join(', '))}</span>`;
+  if (q.type === 'jaar' && !q.juist && q.gekozen) info += `<br><span class="muted">Jouw antwoord: ${esc(q.gekozen)}</span>`;
+  if (!q.opties && q.type !== 'jaar' && q.gekozen) info += `<br><span class="muted">Jouw antwoord: “${esc(q.gekozen)}”</span>`;
+  el('nummer-info').innerHTML = info;
+  const yt = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3L10 15z"/></svg>';
+  el('nummer-links').innerHTML = (s.youtube ? `<a href="${esc(s.youtube)}" target="_blank" rel="noopener">${yt} YouTube</a>` : '') + (s.bron ? `<a href="${esc(s.bron)}" target="_blank" rel="noopener">Wikipedia</a>` : '');
+  el('resultaat').hidden = false;
+  el('resultaat').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+function gebruikTip(){
+  const q = state.q; if (!q || q.tip || q.beantwoord) return;
+  const s = q.song;
+  q.tip = true; state.ronde.tips++;
+  if (q.type === 'jaar') {
+    const breedte = 5;   // venster van 6 jaar
+    let lo = s.jaar - randInt(0, breedte); lo = Math.max(JAREN.min, lo);
+    let hi = lo + breedte; if (hi > JAREN.max) { hi = JAREN.max; lo = Math.max(JAREN.min, hi - breedte); }
+    q.venster = [lo, hi];
+    q.tipTekst = `Het nummer komt uit de periode ${lo}–${hi}.`;
+  } else if (q.opties) {
+    const fout = q.opties.filter(o => norm(o) !== norm(q.juistOptie));
+    q.weg = shuffle(fout.slice()).slice(0, 2);
+    q.tipTekst = 'Twee foute antwoorden zijn weggehaald.';
+  } else if (q.type === 'artiest') {
+    q.tipTekst = `De naam begint met een “${s.artiest.trim()[0].toUpperCase()}” · ${s.land}, ${s.jaar}.`;
+  } else if (q.type === 'titel') {
+    q.tipTekst = `De artiest is ${s.artiest} (${s.land}, ${s.jaar}).`;
+  } else if (q.type === 'lid') {
+    if (naamVerraadtLeden(s)) { const l = pick(s.leden)[0]; q.tipTekst = `Eén van de namen begint met een “${l[0].toUpperCase()}” · ${s.land}, ${s.jaar}.`; }
+    else q.tipTekst = `${s.soort === 'duo' ? 'Het duo heet' : 'De groep heet'} ${s.artiest}.`;
+  }
+  renderVraag();
+}
+function vraagStop(){
+  const r = state.ronde; if (!r) return;
+  if (!r.vragen) { stopAfspelen(); state.q = null; toon('home'); renderHome(); return; }
+  el('stop-samenvatting').textContent = `${r.score} ${r.score === 1 ? 'punt' : 'punten'} uit ${r.vragen} ${r.vragen === 1 ? 'vraag' : 'vragen'} (${r.juist} juist${r.tips ? ', ' + r.tips + ' tip' + (r.tips === 1 ? '' : 's') : ''}).`;
+  el('stop-naam').value = laadJSON('vibely.naam', '') || '';
+  el('stop-overlay').hidden = false;
+}
+function bewaarScoreEnStop(){
+  const r = state.ronde; if (!r) return;
+  const naam = el('stop-naam').value.trim();
+  bewaarJSON('vibely.naam', naam);
+  const scores = laadJSON(LS.scores, []) || [];
+  scores.push({ t:new Date().toISOString(), naam, score:r.score, vragen:r.vragen, juist:r.juist, max:r.vragen * 2 });
+  bewaarJSON(LS.scores, scores);
+  el('stop-overlay').hidden = true;
+  stopAfspelen(); state.q = null; state.ronde = null;
+  toast('Score opgeslagen');
+  renderScores(); toon('scores');
+}
+
+/* ============================================================
+   Scorebord
+   ============================================================ */
+function renderScores(){
+  const scores = (laadJSON(LS.scores, []) || []).map((s, i) => ({ ...s, i }));
+  const lijst = el('scores-lijst');
+  for (const b of el('scores-sorteer').querySelectorAll('button')) b.classList.toggle('aan', b.dataset.sort === state.sorteer);
+  if (!scores.length) { lijst.innerHTML = '<div class="leeg">Nog geen scores. Speel een quiz en druk op “Stop” om je score te bewaren.</div>'; return; }
+  const perc = s => s.max ? s.score / s.max : 0;
+  const gesorteerd = scores.slice().sort((a, b) => state.sorteer === 'score' ? (b.score - a.score) || (perc(b) - perc(a)) || (b.t > a.t ? 1 : -1) : (b.t > a.t ? 1 : -1));
+  const beste = scores.slice().sort((a, b) => (b.score - a.score) || (perc(b) - perc(a)))[0];
+  lijst.innerHTML = gesorteerd.map((s, idx) => `
+    <div class="score-rij${s === beste || s.i === beste.i ? ' top1' : ''}">
+      <span class="rang">${state.sorteer === 'score' ? idx + 1 : (s.i === beste.i ? '★' : '·')}</span>
+      <div><div class="naam">${esc(s.naam || 'Anoniem')}</div><div class="meta">${esc(fmtDatum(s.t))} · ${s.juist}/${s.vragen} juist</div></div>
+      <div class="punten">${s.score}<small>van ${s.max} pt</small></div>
+    </div>`).join('');
+}
+function renderHome(){
+  const scores = laadJSON(LS.scores, []) || [];
+  const p = el('home-laatste');
+  if (!scores.length) { p.textContent = ''; return; }
+  const l = scores[scores.length - 1];
+  p.textContent = `Laatste ronde: ${l.score} van ${l.max} punten${l.naam ? ' (' + l.naam + ')' : ''} · ${fmtDatum(l.t)}`;
+}
+
+/* ============================================================
+   Instellingen
+   ============================================================ */
+function renderInstellingen(){
+  for (const st of document.querySelectorAll('.stepper')) st.querySelector('span').textContent = S[st.dataset.key];
+  for (const b of document.querySelectorAll('.schakel[data-type]')) b.classList.toggle('aan', !!S.types[b.dataset.type]);
+  for (const b of document.querySelectorAll('.schakel[data-land]')) b.classList.toggle('aan', S.landen[b.dataset.land] !== false);
+  for (const b of document.querySelectorAll('.schakel[data-toggle]')) b.classList.toggle('aan', !!S[b.dataset.toggle]);
+  for (const b of el('modus-seg').querySelectorAll('button')) b.classList.toggle('aan', b.dataset.modus === S.modus);
+  el('uitleg-lid').textContent = `alleen bij groepen en duo's (${SONGS.filter(metLeden).length} nummers)`;
+  toonBestandsStatus();
+}
+function bevestig(titel, tekst, actie){
+  el('bevestig-titel').textContent = titel; el('bevestig-tekst').textContent = tekst;
+  el('bevestig-overlay').hidden = false;
+  el('knop-bevestig-ja').onclick = () => { el('bevestig-overlay').hidden = true; actie(); };
+}
+
+/* ============================================================
+   Events
+   ============================================================ */
+el('knop-start').addEventListener('click', startQuiz);
+el('knop-scorebord').addEventListener('click', () => { renderScores(); toon('scores'); });
+el('knop-instellingen').addEventListener('click', () => { renderInstellingen(); toon('instellingen'); });
+el('knop-scores-terug').addEventListener('click', () => { toon('home'); renderHome(); });
+el('knop-instellingen-terug').addEventListener('click', () => { toon('home'); renderHome(); });
+el('scores-sorteer').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.sorteer = b.dataset.sort; renderScores(); });
+el('knop-scores-wissen').addEventListener('click', () => bevestig('Scorebord wissen?', 'Alle opgeslagen scores worden verwijderd.', () => { bewaarJSON(LS.scores, []); renderScores(); }));
+el('knop-bevestig-nee').addEventListener('click', () => { el('bevestig-overlay').hidden = true; });
+
+el('knop-play').addEventListener('click', () => { if (speler.bezig && !audio.paused) stopAfspelen(); else speel(0, S.secStart); });
+el('knop-verder').addEventListener('click', () => speel('verder', S.secVerder));
+el('knop-willekeurig').addEventListener('click', () => speel('random', S.secRandom));
+el('knop-volledig').addEventListener('click', () => speel(0, null));
+el('knop-tip').addEventListener('click', gebruikTip);
+el('knop-geen-idee').addEventListener('click', () => beantwoord(''));
+el('knop-volgende').addEventListener('click', () => volgendeVraag(false));
+el('knop-stop').addEventListener('click', vraagStop);
+el('knop-stop-verder').addEventListener('click', () => { el('stop-overlay').hidden = true; });
+el('knop-stop-opslaan').addEventListener('click', bewaarScoreEnStop);
+el('stop-naam').addEventListener('keydown', e => { if (e.key === 'Enter') bewaarScoreEnStop(); });
+
+el('antwoord-zone').addEventListener('click', e => {
+  const j = e.target.closest('.jaarknop'); if (j && !j.disabled) { beantwoord(Number(j.dataset.jaar)); return; }
+  const o = e.target.closest('.optie'); if (o && !o.disabled) { beantwoord(o.dataset.optie); }
+});
+el('antwoord-zone').addEventListener('submit', e => {
+  e.preventDefault();
+  const inp = el('typen-invoer'); if (!inp || inp.disabled) return;
+  const v = inp.value.trim(); if (!v) { inp.focus(); return; }
+  inp.blur(); beantwoord(v);
+});
+
+document.querySelectorAll('.stepper').forEach(st => st.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const key = st.dataset.key, min = Number(st.dataset.min), max = Number(st.dataset.max);
+  S[key] = Math.max(min, Math.min(max, (Number(S[key]) || 0) + Number(b.dataset.d)));
+  bewaarInstellingen(); renderInstellingen();
+}));
+document.querySelectorAll('.schakel[data-type]').forEach(b => b.addEventListener('click', () => {
+  const aan = Object.values(S.types).filter(Boolean).length;
+  if (S.types[b.dataset.type] && aan <= 1) { toast('Minstens één vraagtype moet aan staan'); return; }
+  S.types[b.dataset.type] = !S.types[b.dataset.type]; bewaarInstellingen(); renderInstellingen();
+}));
+document.querySelectorAll('.schakel[data-land]').forEach(b => b.addEventListener('click', () => {
+  const aan = Object.values(S.landen).filter(v => v !== false).length;
+  if (S.landen[b.dataset.land] !== false && aan <= 1) { toast('Minstens één land moet aan staan'); return; }
+  S.landen[b.dataset.land] = S.landen[b.dataset.land] === false; bewaarInstellingen(); renderInstellingen();
+}));
+document.querySelectorAll('.schakel[data-toggle]').forEach(b => b.addEventListener('click', () => { S[b.dataset.toggle] = !S[b.dataset.toggle]; bewaarInstellingen(); renderInstellingen(); }));
+el('modus-seg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.modus = b.dataset.modus; bewaarInstellingen(); renderInstellingen(); });
+el('knop-controleer').addEventListener('click', () => { controleerBestanden(true); });
+el('knop-reset').addEventListener('click', () => bevestig('Instellingen terugzetten?', 'Fragmenten, marge, vraagtypes en landen gaan terug naar de standaardwaarden.', () => { S = JSON.parse(JSON.stringify(STANDAARD)); bewaarInstellingen(); renderInstellingen(); }));
+
+// Terug naar het begin bij een nieuwe versie van de nummerlijst
+if (!SONGS.length) { el('home-fout').hidden = false; el('home-fout').innerHTML = 'Geen nummers gevonden. Controleer of <b>songs.js</b> naast index.html staat.'; }
+renderHome();
+toonBestandsStatus();
+controleerBestanden(false);
+
+// voor tests/ontwikkeling
+window.Vibely = { norm, komtOvereen, lev, maakVraag, state, speler, get S(){ return S; }, SONGS, controleerBestanden, beantwoord, gebruikTip, speel };
+})();
+</script>
+</body>
+</html>
